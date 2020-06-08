@@ -46,7 +46,7 @@ namespace Dox
                 HandleMouseInput();
 
                 DrawGrid();
-                DrawX(1, 1);
+                /*DrawX(1, 1);
                 DrawX(2, 1);
                 DrawX(3, 1);
 
@@ -56,7 +56,19 @@ namespace Dox
 
                 DrawX(1, 3);
                 DrawX(2, 3);
-                DrawX(3, 3);
+                DrawX(3, 3);*/
+
+                DrawO(1, 1);
+                DrawO(2, 1);
+                DrawO(3, 1);
+
+                DrawO(1, 2);
+                DrawO(2, 2);
+                DrawO(3, 2);
+
+                DrawO(1, 3);
+                DrawO(2, 3);
+                DrawO(3, 3);
 
                 window.Display();
                 window.DispatchEvents();
@@ -92,9 +104,11 @@ namespace Dox
             window.Draw(l);
         }
 
-        static void DrawO(Vector2f position)
+        static void DrawO(int row, int col)
         {
-
+            CircleShape c = new CircleShape(40);
+            c.Position = new Vector2f((row * 160) - 115, (col * 160) - 115);
+            window.Draw(c);
         }
 
         static void HandleKeyboardInput()
