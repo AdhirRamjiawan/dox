@@ -43,6 +43,7 @@ namespace Dox
                 HandleMouseInput();
 
                 DrawGrid();
+                DrawX(1, 1);
 
                 window.Display();
                 window.DispatchEvents();
@@ -70,16 +71,33 @@ namespace Dox
                 line.Rotation = 90;
                 window.Draw(line);  
             }
-            
+        }
+
+        static void DrawX(int row, int col)
+        {
+            CircleShape top = new CircleShape(40, 3);
+            CircleShape bottom = new CircleShape(40, 3);
+
+            top.Position = new Vector2f(((row * 10) + 80) + 40, (col * 10) + 80);
+            bottom.Position = new Vector2f((row * 10) + 40, (col * 10) + 70);
+
+            top.Rotation = 180f;
+
+            window.Draw(top);
+            window.Draw(bottom);
+        }
+
+        static void DrawO(Vector2f position)
+        {
+
         }
 
         static void HandleKeyboardInput()
         {
             if (Keyboard.IsKeyPressed(Keyboard.Key.Right))
             {
-            }
 
-            
+            }
         }
 
         static void HandleMouseInput()
