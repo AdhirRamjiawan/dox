@@ -11,6 +11,9 @@ namespace Dox
         static RenderWindow window;
         static bool isMouseClicked;
 
+        static float lineThickness = 15f;
+        static float lineLength = 480f;
+
         static void onClose(object sender, EventArgs e)
         {
             RenderWindow window = sender as RenderWindow;
@@ -44,6 +47,16 @@ namespace Dox
 
                 DrawGrid();
                 DrawX(1, 1);
+                DrawX(2, 1);
+                DrawX(3, 1);
+
+                DrawX(1, 2);
+                DrawX(2, 2);
+                DrawX(3, 2);
+
+                DrawX(1, 3);
+                DrawX(2, 3);
+                DrawX(3, 3);
 
                 window.Display();
                 window.DispatchEvents();
@@ -52,9 +65,6 @@ namespace Dox
 
         static void DrawGrid()
         {
-            float lineThickness = 15f;
-            float lineLength = 480f;
-
             // draw horizontal lines
             for (int i = 0; i < 4; i++)
             {
@@ -75,16 +85,11 @@ namespace Dox
 
         static void DrawX(int row, int col)
         {
-            CircleShape top = new CircleShape(40, 3);
-            CircleShape bottom = new CircleShape(40, 3);
-
-            top.Position = new Vector2f(((row * 10) + 80) + 40, (col * 10) + 80);
-            bottom.Position = new Vector2f((row * 10) + 40, (col * 10) + 70);
-
-            top.Rotation = 180f;
-
-            window.Draw(top);
-            window.Draw(bottom);
+            RectangleShape l = new RectangleShape();
+            l.Size = new Vector2f(100, lineThickness);
+            l.Position = new Vector2f((row * 160) - 110, (col * 160) - 130);
+            l.Rotation = 45;
+            window.Draw(l);
         }
 
         static void DrawO(Vector2f position)
