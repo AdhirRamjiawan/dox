@@ -50,9 +50,6 @@ namespace Dox
             {
                 window.Clear();
 
-                //HandleKeyboardInput();
-                //HandleMouseInput();
-
                 DrawGrid();
                 DrawPlays();
 
@@ -173,6 +170,11 @@ namespace Dox
             
 
             CheckWin();
+
+            if (hasWon)
+            {
+                Console.WriteLine($"We have a winner: {currentPlayer}!");
+            }
         }
     #endregion
         
