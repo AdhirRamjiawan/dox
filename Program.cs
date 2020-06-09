@@ -16,15 +16,52 @@ namespace Dox
         static float lineThickness = 15f;
         static float lineLength = 480f;
 
-        static int[,] state = new int[3,3] {
+        static readonly int[,] emptyState = new int[3,3] {
             {0,0,0},
             {0,0,0},
             {0,0,0}
         };
 
+        static int[,] state = emptyState.Clone() as int[,];
+
         static int currentPlayer = 1;
         static bool hasWon = false;
 
+        static void Reset()
+        {
+            hasWon = false;
+            currentPlayer = 1;
+            state = emptyState.Clone() as int[,];
+        }
+
+        static void Main(string[] args)
+        {
+            const string version = "Dox v1.0";
+            Console.WriteLine(version);
+            window = new RenderWindow(new SFML.Window.VideoMode(600,480), version);
+
+            window.Closed += onClose;
+            window.KeyPressed += onKeyPressed;
+            window.MouseButtonPressed += onMouseButtonPressed;
+
+            Reset();
+
+            while (window.IsOpen)
+            {
+                window.Clear();
+
+                //HandleKeyboardInput();
+                //HandleMouseInput();
+
+                DrawGrid();
+                DrawPlays();
+
+                window.Display();
+                window.DispatchEvents();
+            }
+        }
+
+        #region Event Handling
         static void onClose(object sender, EventArgs e)
         {
             RenderWindow window = sender as RenderWindow;
@@ -37,67 +74,11 @@ namespace Dox
                 Reset();
         }
 
-        static void Reset()
+        static void onMouseButtonPressed(object sender, MouseButtonEventArgs e)
         {
-            hasWon = false;
-            currentPlayer = 1;
-            state = new int[3,3] {
-                {0,0,0},
-                {0,0,0},
-                {0,0,0}
-            };
+            HandleMouseInput();
         }
-
-        static void Main(string[] args)
-        {
-            const string version = "Dox v1.0";
-            Console.WriteLine(version);
-            window = new RenderWindow(new SFML.Window.VideoMode(600,480), version);
-
-            window.Closed += onClose;
-            window.KeyPressed += onKeyPressed;
-
-            Reset();
-
-            while (window.IsOpen)
-            {
-                window.Clear();
-
-                HandleKeyboardInput();
-                HandleMouseInput();
-
-                DrawGrid();
-                DrawPlays();
-                /*DrawX(1, 1);
-                DrawX(2, 1);
-                DrawX(3, 1);
-
-                DrawX(1, 2);
-                DrawX(2, 2);
-                DrawX(3, 2);
-
-                DrawX(1, 3);
-                DrawX(2, 3);
-                DrawX(3, 3);
-
-                DrawO(1, 1);
-                DrawO(2, 1);
-                DrawO(3, 1);
-
-                DrawO(1, 2);
-                DrawO(2, 2);
-                DrawO(3, 2);
-
-                DrawO(1, 3);
-                DrawO(2, 3);
-                DrawO(3, 3);*/
-
-                window.Display();
-                window.DispatchEvents();
-            }
-        }
-
-        
+        #endregion
 
         #region Draw Calls
         static void DrawGrid()
@@ -168,37 +149,30 @@ namespace Dox
 
         static void HandleMouseInput()
         {
-            if (!isMouseClicked && Mouse.IsButtonPressed(Mouse.Button.Left))
+            Vector2i position = Mouse.GetPosition(window);
+            
+            #if DOX_DEBUG
+            Console.WriteLine(string.Format("X: {0}, Y: {1}", position.X, position.Y));
+            #endif
+
+            isMouseClicked = true;
+
+            var gp = GetGridPosition(position.X, position.Y);
+
+            if (gp != null)
             {
-                Vector2i position = Mouse.GetPosition(window);
-                
+                //DrawO(gp.Item1, gp.Item2);
+
+                state[gp.Item2, gp.Item1] = currentPlayer;
+                SwitchPlayer();
+
                 #if DOX_DEBUG
-                Console.WriteLine(string.Format("X: {0}, Y: {1}", position.X, position.Y));
+                Console.WriteLine(string.Format("Grid Position {0}, {1}", gp.Item1, gp.Item2));
                 #endif
-
-                isMouseClicked = true;
-
-                var gp = GetGridPosition(position.X, position.Y);
-
-                if (gp != null)
-                {
-                    //DrawO(gp.Item1, gp.Item2);
-
-                    state[gp.Item2, gp.Item1] = currentPlayer;
-                    SwitchPlayer();
-
-                    #if DOX_DEBUG
-                    Console.WriteLine(string.Format("Grid Position {0}, {1}", gp.Item1, gp.Item2));
-                    #endif
-                }
-                
-
-                CheckWin();
             }
-            else
-            {
-                isMouseClicked = false;
-            }
+            
+
+            CheckWin();
         }
     #endregion
         
