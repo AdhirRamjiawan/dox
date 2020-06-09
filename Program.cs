@@ -1,4 +1,6 @@
-﻿using System;
+﻿#define DOX_DEBUG
+
+using System;
 using SFML.Graphics;
 using SFML.System;
 using SFML.Window;
@@ -20,7 +22,7 @@ namespace Dox
             {0,0,0}
         };
 
-        static string currentPlayer = "x";
+        static int currentPlayer = 1;
         static bool hasWon = false;
 
         static void onClose(object sender, EventArgs e)
@@ -33,6 +35,17 @@ namespace Dox
         {
             if (e.Code == Keyboard.Key.R)
                 Reset();
+        }
+
+        static void Reset()
+        {
+            hasWon = false;
+            currentPlayer = 1;
+            state = new int[3,3] {
+                {0,0,0},
+                {0,0,0},
+                {0,0,0}
+            };
         }
 
         static void Main(string[] args)
@@ -54,6 +67,7 @@ namespace Dox
                 HandleMouseInput();
 
                 DrawGrid();
+                DrawPlays();
                 /*DrawX(1, 1);
                 DrawX(2, 1);
                 DrawX(3, 1);
@@ -64,7 +78,7 @@ namespace Dox
 
                 DrawX(1, 3);
                 DrawX(2, 3);
-                DrawX(3, 3);*/
+                DrawX(3, 3);
 
                 DrawO(1, 1);
                 DrawO(2, 1);
@@ -76,13 +90,119 @@ namespace Dox
 
                 DrawO(1, 3);
                 DrawO(2, 3);
-                DrawO(3, 3);
+                DrawO(3, 3);*/
 
                 window.Display();
                 window.DispatchEvents();
             }
         }
 
+        
+
+        #region Draw Calls
+        static void DrawGrid()
+        {
+            // draw horizontal lines
+            for (int i = 0; i < 4; i++)
+            {
+                RectangleShape line = new RectangleShape(new Vector2f(lineLength, lineThickness));
+                line.Position = new Vector2f(0, 155 * i);
+                window.Draw(line);  
+            }
+
+            // draw vertical lines
+            for (int i = 0; i < 4; i++)
+            {
+                RectangleShape line = new RectangleShape(new Vector2f(lineLength, lineThickness));
+                line.Position = new Vector2f(160 * i + lineThickness, 0);
+                line.Rotation = 90;
+                window.Draw(line);  
+            }
+        }
+
+        static void DrawX(int col, int row)
+        {
+            row++;
+            col++;
+
+            RectangleShape l = new RectangleShape();
+            l.Size = new Vector2f(100, lineThickness);
+            l.Position = new Vector2f((row * 160) - 110, (col * 160) - 130);
+            l.Rotation = 45;
+            window.Draw(l);
+        }
+
+        static void DrawO(int col, int row)
+        {
+            row++;
+            col++;
+
+            CircleShape c = new CircleShape(40);
+            c.Position = new Vector2f((row * 160) - 115, (col * 160) - 115);
+            window.Draw(c);
+        }
+
+        static void DrawPlays()
+        {
+            for (int row = 0; row < 3; row++)
+            {
+                for (int col = 0; col < 3; col++)
+                {
+                    if (state[row, col] == 1)
+                        DrawX(col, row);
+                    else if (state[row, col] == 2)
+                        DrawO(col, row);
+                }
+            }
+        }
+        #endregion
+
+        #region Input Handling
+        static void HandleKeyboardInput()
+        {
+            if (Keyboard.IsKeyPressed(Keyboard.Key.Right))
+            {
+
+            }
+        }
+
+        static void HandleMouseInput()
+        {
+            if (!isMouseClicked && Mouse.IsButtonPressed(Mouse.Button.Left))
+            {
+                Vector2i position = Mouse.GetPosition(window);
+                
+                #if DOX_DEBUG
+                Console.WriteLine(string.Format("X: {0}, Y: {1}", position.X, position.Y));
+                #endif
+
+                isMouseClicked = true;
+
+                var gp = GetGridPosition(position.X, position.Y);
+
+                if (gp != null)
+                {
+                    //DrawO(gp.Item1, gp.Item2);
+
+                    state[gp.Item2, gp.Item1] = currentPlayer;
+                    SwitchPlayer();
+
+                    #if DOX_DEBUG
+                    Console.WriteLine(string.Format("Grid Position {0}, {1}", gp.Item1, gp.Item2));
+                    #endif
+                }
+                
+
+                CheckWin();
+            }
+            else
+            {
+                isMouseClicked = false;
+            }
+        }
+    #endregion
+        
+        #region Logic Functions
         static void CheckWin()
         {
             // row checks
@@ -125,85 +245,6 @@ namespace Dox
             }
         }
 
-        static void DrawGrid()
-        {
-            // draw horizontal lines
-            for (int i = 0; i < 4; i++)
-            {
-                RectangleShape line = new RectangleShape(new Vector2f(lineLength, lineThickness));
-                line.Position = new Vector2f(0, 155 * i);
-                window.Draw(line);  
-            }
-
-            // draw vertical lines
-            for (int i = 0; i < 4; i++)
-            {
-                RectangleShape line = new RectangleShape(new Vector2f(lineLength, lineThickness));
-                line.Position = new Vector2f(160 * i + lineThickness, 0);
-                line.Rotation = 90;
-                window.Draw(line);  
-            }
-        }
-
-        static void DrawX(int row, int col)
-        {
-            RectangleShape l = new RectangleShape();
-            l.Size = new Vector2f(100, lineThickness);
-            l.Position = new Vector2f((row * 160) - 110, (col * 160) - 130);
-            l.Rotation = 45;
-            window.Draw(l);
-        }
-
-        static void DrawO(int row, int col)
-        {
-            CircleShape c = new CircleShape(40);
-            c.Position = new Vector2f((row * 160) - 115, (col * 160) - 115);
-            window.Draw(c);
-        }
-
-        static void HandleKeyboardInput()
-        {
-            if (Keyboard.IsKeyPressed(Keyboard.Key.Right))
-            {
-
-            }
-        }
-
-        static void HandleMouseInput()
-        {
-            if (!isMouseClicked && Mouse.IsButtonPressed(Mouse.Button.Left))
-            {
-                Vector2i position = Mouse.GetPosition(window);
-                
-                Console.WriteLine(string.Format("X: {0}, Y: {1}", position.X, position.Y));
-                isMouseClicked = true;
-
-                var gp = GetGridPosition(position.X, position.Y);
-
-                if (gp != null)
-                {
-                    Console.WriteLine(string.Format("Grid Position {0}, {1}", gp.Item1, gp.Item2));
-                }
-                
-
-                CheckWin();
-            }
-            else
-            {
-                isMouseClicked = false;
-            }
-        }
-
-        static void Reset()
-        {
-            hasWon = false;
-            state = new int[3,3] {
-                {0,0,0},
-                {0,0,0},
-                {0,0,0}
-            };
-        }
-
         static Tuple<int, int> GetGridPosition(int x, int y)
         {
             int space = 160;
@@ -242,5 +283,12 @@ namespace Dox
 
             return null;
         }
+
+        static void SwitchPlayer() 
+        {
+            currentPlayer = (currentPlayer == 1) ? 2:1;
+        }
+
+        #endregion
     }
 }
