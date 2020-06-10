@@ -97,6 +97,16 @@ namespace Dox
 
         #region Draw Calls
 
+        static void DrawClickToContinue()
+        {
+            Text subText = new Text("Click to Continue", font);
+            subText.CharacterSize = 20;
+            subText.FillColor = Color.Blue;
+            subText.Position = new Vector2f(220, 300);
+
+            window.Draw(subText);
+        }
+
         static void DrawIntro()
         {
             Text text = new Text("~-=|DoX|=-~", font);
@@ -104,14 +114,9 @@ namespace Dox
             text.FillColor = Color.Blue;
             text.Position = new Vector2f(150, 170);
 
-            Text subText = new Text("Click to Continue", font);
-            subText.CharacterSize = 20;
-            subText.FillColor = Color.Blue;
-            subText.Position = new Vector2f(220, 300);
-
             window.Clear(Color.White);
             window.Draw(text);
-            window.Draw(subText);
+            DrawClickToContinue();
         }
 
         static void DrawWinText()
@@ -127,15 +132,9 @@ namespace Dox
             text.FillColor = Color.Blue;
             text.Position = new Vector2f(170, 170);
 
-            Text subText = new Text("Click to Continue", font);
-            subText.CharacterSize = 20;
-            subText.FillColor = Color.Blue;
-            subText.Position = new Vector2f(220, 300);
-
-
             window.Clear(Color.White);
             window.Draw(text);
-            window.Draw(subText);
+            DrawClickToContinue();
         }
 
         static void DrawGrid()
