@@ -10,6 +10,11 @@ namespace Dox
     class Program
     {
 
+        static int globalGameState = 0;
+        static readonly uint screenHeight = 480;
+        static readonly uint screenWidth = 600;
+        static Font font;
+        static readonly string fontName = "Ubuntu-Bold.ttf";
         static RenderWindow window;
         static bool isMouseClicked;
 
@@ -29,6 +34,7 @@ namespace Dox
 
         static void Reset()
         {
+            globalGameState = 0;
             hasWon = false;
             currentPlayer = 1;
             state = emptyState.Clone() as int[,];
@@ -38,11 +44,13 @@ namespace Dox
         {
             const string version = "Dox v1.0";
             Console.WriteLine(version);
-            window = new RenderWindow(new SFML.Window.VideoMode(600,480), version);
+            window = new RenderWindow(new SFML.Window.VideoMode(screenWidth,screenHeight), version);
 
             window.Closed += onClose;
             window.KeyPressed += onKeyPressed;
             window.MouseButtonPressed += onMouseButtonPressed;
+
+            font = new Font(fontName);
 
             Reset();
 
@@ -50,9 +58,16 @@ namespace Dox
             {
                 window.Clear();
 
-                DrawGrid();
-                DrawPlays();
-
+                if (globalGameState == 0)
+                {
+                    DrawGrid();
+                    DrawPlays();
+                }
+                else if (globalGameState == 1)
+                {
+                    DrawWinText();
+                }
+                
                 window.Display();
                 window.DispatchEvents();
             }
@@ -78,6 +93,23 @@ namespace Dox
         #endregion
 
         #region Draw Calls
+
+        static void DrawWinText()
+        {
+            if (!hasWon)
+                return;
+
+            string strCurrentPlayer =   (currentPlayer == 1) ? "O" : 
+                                        (currentPlayer == 2) ? "X" :"";
+            string winMessage = $"{strCurrentPlayer} has won!";
+            Text text = new Text(winMessage, font);
+            text.CharacterSize = 50;
+            text.FillColor = Color.Blue;
+            text.Position = new Vector2f(170, 170);
+            window.Clear(Color.White);
+            window.Draw(text);
+        }
+
         static void DrawGrid()
         {
             // draw horizontal lines
@@ -152,7 +184,12 @@ namespace Dox
             Console.WriteLine(string.Format("X: {0}, Y: {1}", position.X, position.Y));
             #endif
 
-            isMouseClicked = true;
+            if (globalGameState == 1)
+            {
+                Reset();
+                return;
+            }
+
 
             var gp = GetGridPosition(position.X, position.Y);
 
@@ -180,7 +217,8 @@ namespace Dox
 
             if (hasWon)
             {
-                Reset();
+                globalGameState = 1;
+                //Reset();
                 Console.WriteLine($"We have a winner: {currentPlayer}!");
             }
         }
