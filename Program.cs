@@ -10,7 +10,7 @@ namespace Dox
     class Program
     {
 
-        static int globalGameState = 0;
+        static int globalGameState = -1;
         static readonly uint screenHeight = 480;
         static readonly uint screenWidth = 600;
         static Font font;
@@ -34,7 +34,6 @@ namespace Dox
 
         static void Reset()
         {
-            globalGameState = 0;
             hasWon = false;
             currentPlayer = 1;
             state = emptyState.Clone() as int[,];
@@ -58,7 +57,11 @@ namespace Dox
             {
                 window.Clear();
 
-                if (globalGameState == 0)
+                if (globalGameState == -1) 
+                {
+                    DrawIntro();
+                }
+                else if (globalGameState == 0)
                 {
                     DrawGrid();
                     DrawPlays();
@@ -94,6 +97,23 @@ namespace Dox
 
         #region Draw Calls
 
+        static void DrawIntro()
+        {
+            Text text = new Text("~-=|DoX|=-~", font);
+            text.CharacterSize = 50;
+            text.FillColor = Color.Blue;
+            text.Position = new Vector2f(150, 170);
+
+            Text subText = new Text("Click to Continue", font);
+            subText.CharacterSize = 20;
+            subText.FillColor = Color.Blue;
+            subText.Position = new Vector2f(220, 300);
+
+            window.Clear(Color.White);
+            window.Draw(text);
+            window.Draw(subText);
+        }
+
         static void DrawWinText()
         {
             if (!hasWon)
@@ -106,8 +126,16 @@ namespace Dox
             text.CharacterSize = 50;
             text.FillColor = Color.Blue;
             text.Position = new Vector2f(170, 170);
+
+            Text subText = new Text("Click to Continue", font);
+            subText.CharacterSize = 20;
+            subText.FillColor = Color.Blue;
+            subText.Position = new Vector2f(220, 300);
+
+
             window.Clear(Color.White);
             window.Draw(text);
+            window.Draw(subText);
         }
 
         static void DrawGrid()
@@ -184,8 +212,15 @@ namespace Dox
             Console.WriteLine(string.Format("X: {0}, Y: {1}", position.X, position.Y));
             #endif
 
-            if (globalGameState == 1)
+            if(globalGameState == -1)
             {
+                globalGameState = 0;
+                Reset();
+                return;
+            }
+            else if (globalGameState == 1)
+            {
+                globalGameState = 0;
                 Reset();
                 return;
             }
