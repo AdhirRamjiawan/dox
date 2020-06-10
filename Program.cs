@@ -160,8 +160,15 @@ namespace Dox
             {
                 //DrawO(gp.Item1, gp.Item2);
 
-                state[gp.Item2, gp.Item1] = currentPlayer;
-                SwitchPlayer();
+                if (state[gp.Item2, gp.Item1] == 0)
+                {
+                    state[gp.Item2, gp.Item1] = currentPlayer;
+                    SwitchPlayer();
+                }
+                else
+                {
+                    // stub sound
+                }
 
                 #if DOX_DEBUG
                 Console.WriteLine(string.Format("Grid Position {0}, {1}", gp.Item1, gp.Item2));
@@ -173,6 +180,7 @@ namespace Dox
 
             if (hasWon)
             {
+                Reset();
                 Console.WriteLine($"We have a winner: {currentPlayer}!");
             }
         }
