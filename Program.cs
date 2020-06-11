@@ -149,7 +149,7 @@ namespace Dox
             Text text = new Text("Match ends in draw!", font);
             text.CharacterSize = 50;
             text.FillColor = Color.Red;
-            text.Position = new Vector2f(170, 170);
+            text.Position = new Vector2f(70, 170);
 
             window.Clear(Color.White);
             window.Draw(text);
