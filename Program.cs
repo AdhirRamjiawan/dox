@@ -31,9 +31,12 @@ namespace Dox
 
         static int currentPlayer = 1;
         static bool hasWon = false;
+        static bool hasDrawn = false;
+        static int playsLeft = 9;
 
         static void Reset()
         {
+            playsLeft = 9;
             hasWon = false;
             currentPlayer = 1;
             state = emptyState.Clone() as int[,];
@@ -69,6 +72,10 @@ namespace Dox
                 else if (globalGameState == 1)
                 {
                     DrawWinText();
+                }
+                else if (globalGameState == 2)
+                {
+                    DrawDrawText();
                 }
                 
                 window.Display();
@@ -130,6 +137,18 @@ namespace Dox
             Text text = new Text(winMessage, font);
             text.CharacterSize = 50;
             text.FillColor = Color.Blue;
+            text.Position = new Vector2f(170, 170);
+
+            window.Clear(Color.White);
+            window.Draw(text);
+            DrawClickToContinue();
+        }
+
+        static void DrawDrawText()
+        {
+            Text text = new Text("Match ends in draw!", font);
+            text.CharacterSize = 50;
+            text.FillColor = Color.Red;
             text.Position = new Vector2f(170, 170);
 
             window.Clear(Color.White);
@@ -223,6 +242,12 @@ namespace Dox
                 Reset();
                 return;
             }
+            else if (globalGameState == 2)
+            {
+                globalGameState = 0;
+                Reset();
+                return;
+            }
 
 
             var gp = GetGridPosition(position.X, position.Y);
@@ -248,6 +273,7 @@ namespace Dox
             
 
             CheckWin();
+            CheckDraw();
 
             if (hasWon)
             {
@@ -255,10 +281,20 @@ namespace Dox
                 //Reset();
                 Console.WriteLine($"We have a winner: {currentPlayer}!");
             }
+
+            if (hasDrawn)
+            {
+                globalGameState = 2;
+            }
         }
     #endregion
         
         #region Logic Functions
+
+        static void CheckDraw() 
+        {
+            hasDrawn = playsLeft == 0 && !hasWon;
+        }
         static void CheckWin()
         {
             // row checks
@@ -343,6 +379,7 @@ namespace Dox
         static void SwitchPlayer() 
         {
             currentPlayer = (currentPlayer == 1) ? 2:1;
+            playsLeft--;
         }
 
         #endregion
