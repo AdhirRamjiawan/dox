@@ -10,7 +10,12 @@ namespace Dox
     class Program
     {
 
-        static int globalGameState = -1;
+        enum GameType {
+            MultiPlayerLocal = 1,
+            MultiPlayerOnline = 2
+        }
+
+        static int globalGameState = -2;
         static readonly uint screenHeight = 480;
         static readonly uint screenWidth = 600;
         static Font font;
@@ -33,6 +38,7 @@ namespace Dox
         static bool hasWon = false;
         static bool hasDrawn = false;
         static int playsLeft = 9;
+        static GameType currentGameType;
 
         static void Reset()
         {
@@ -54,15 +60,21 @@ namespace Dox
 
             font = new Font(fontName);
 
+            currentGameType = GameType.MultiPlayerLocal;
+
             Reset();
 
             while (window.IsOpen)
             {
                 window.Clear();
 
-                if (globalGameState == -1) 
+                if (globalGameState == -2) 
                 {
                     DrawIntro();
+                }
+                else if (globalGameState == -1)
+                {
+                    DrawSelectGameType();
                 }
                 else if (globalGameState == 0)
                 {
@@ -126,6 +138,29 @@ namespace Dox
             DrawClickToContinue();
         }
 
+        static void DrawSelectGameType()
+        {
+            Text title = CreateText("Select game", 30, Color.Blue, 150, 70);
+            Text option1 = CreateText("2P Local", 20, Color.Blue, 150, 150);
+            Text option2 = CreateText("2P Online", 20, Color.Blue, 150, 250);
+
+            Vector2i mousePosition =  Mouse.GetPosition(window);
+
+            if (mousePosition.X > 150 && mousePosition.X < 400)
+            {
+                if (mousePosition.Y > 150 && mousePosition.Y < 200)
+                    option1.FillColor = Color.Magenta;
+
+                if (mousePosition.Y > 250 && mousePosition.Y < 300)
+                    option2.FillColor = Color.Magenta;
+            }
+
+            window.Clear(Color.White);
+            window.Draw(title);
+            window.Draw(option1);
+            window.Draw(option2);
+        }
+
         static void DrawWinText()
         {
             if (!hasWon)
@@ -154,6 +189,15 @@ namespace Dox
             window.Clear(Color.White);
             window.Draw(text);
             DrawClickToContinue();
+        }
+
+        static Text CreateText(string message, uint size, Color color, float x, float y)
+        {
+            Text text = new Text(message, font);
+            text.CharacterSize = size;
+            text.FillColor = color;
+            text.Position = new Vector2f(x,y);
+            return text;
         }
 
         static void DrawGrid()
@@ -230,8 +274,25 @@ namespace Dox
             Console.WriteLine(string.Format("X: {0}, Y: {1}", position.X, position.Y));
             #endif
 
-            if(globalGameState == -1)
+            if(globalGameState == -2)
             {
+                globalGameState = -1;
+                Reset();
+                return;
+            }
+            else if(globalGameState == -1)
+            {
+                Vector2i mousePosition =  Mouse.GetPosition(window);
+
+                if (mousePosition.X > 150 && mousePosition.X < 400)
+                {
+                    if (mousePosition.Y > 150 && mousePosition.Y < 200)
+                        currentGameType = GameType.MultiPlayerLocal;
+
+                    if (mousePosition.Y > 250 && mousePosition.Y < 300)
+                        return;
+                        //currentGameType = GameType.MultiPlayerOnline;
+                }
                 globalGameState = 0;
                 Reset();
                 return;
