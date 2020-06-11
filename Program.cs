@@ -288,10 +288,14 @@ namespace Dox
                 {
                     if (mousePosition.Y > 150 && mousePosition.Y < 200)
                         currentGameType = GameType.MultiPlayerLocal;
-
-                    if (mousePosition.Y > 250 && mousePosition.Y < 300)
+                    else if (mousePosition.Y > 250 && mousePosition.Y < 300)
+                        return; //currentGameType = GameType.MultiPlayerOnline;
+                    else
                         return;
-                        //currentGameType = GameType.MultiPlayerOnline;
+                }
+                else
+                {
+                    return;
                 }
                 globalGameState = 0;
                 Reset();
