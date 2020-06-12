@@ -1,6 +1,9 @@
 ﻿#define DOX_DEBUG
 
 using System;
+using System.Net;
+using System.Net.Sockets;
+using System.Text;
 using SFML.Graphics;
 using SFML.System;
 using SFML.Window;
@@ -39,6 +42,8 @@ namespace Dox
         static bool hasDrawn = false;
         static int playsLeft = 9;
         static GameType currentGameType;
+        static int multiplayerClientId = 0;
+        static int multiplayerGameId = 0;
 
         static void Reset()
         {
@@ -46,6 +51,7 @@ namespace Dox
             hasWon = false;
             currentPlayer = 1;
             state = emptyState.Clone() as int[,];
+            multiplayerClientId = 0;
         }
 
         static void Main(string[] args)
@@ -289,7 +295,10 @@ namespace Dox
                     if (mousePosition.Y > 150 && mousePosition.Y < 200)
                         currentGameType = GameType.MultiPlayerLocal;
                     else if (mousePosition.Y > 250 && mousePosition.Y < 300)
-                        return; //currentGameType = GameType.MultiPlayerOnline;
+                        //GetMultiplayerGameId();
+                        //GetMultiplayerClientIdForGame();
+                        //currentGameType = GameType.MultiPlayerOnline; 
+                        return;
                     else
                         return;
                 }
@@ -325,6 +334,9 @@ namespace Dox
                 {
                     state[gp.Item2, gp.Item1] = currentPlayer;
                     SwitchPlayer();
+
+                    if (currentGameType == GameType.MultiPlayerOnline)
+                        SendNetworkPlay(gp.Item1, gp.Item2);
                 }
                 else
                 {
@@ -451,6 +463,58 @@ namespace Dox
     
         #region Networking code
 
+        private delegate void NetworkCallback<T>(T obj);
+
+        static void GetMultiplayerGameId()
+        {
+            SendNetworkData("GID", (data) => {
+                multiplayerGameId = Int32.Parse(data);
+             });
+        }
+
+        static void GetMultiplayerClientIdForGame()
+        {
+            SendNetworkData("CID", (data) => {
+                multiplayerClientId = Int32.Parse(data);
+             });
+        }
+
+        static void SendNetworkPlay(int row, int col)
+        {
+            SendNetworkData($"{multiplayerGameId},{multiplayerClientId};{row},{col}", (data) => { });
+        }
+
+        static void SendNetworkData(string message, NetworkCallback<string> callback)
+        {
+            byte[] bytes = new byte[1024];
+
+            try
+            {
+                IPHostEntry host = Dns.GetHostEntry("localhost");
+                IPAddress ip = host.AddressList[0];
+                IPEndPoint serverEndpoint = new IPEndPoint(ip, 11000);
+
+                Socket sender = new Socket(ip.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+                sender.Connect(serverEndpoint);
+
+                byte[] msg= Encoding.ASCII.GetBytes($"{message}[END]");
+                sender.Send(msg);
+                int bytesReceived = sender.Receive(bytes);
+                string strData = Encoding.ASCII.GetString(bytes, 0, bytesReceived);
+
+                callback.Invoke(strData);
+
+                Console.WriteLine("Received data: {0}\n", strData);
+
+                sender.Shutdown(SocketShutdown.Both);
+                sender.Close();
+
+            }
+            catch (Exception exception)
+            {
+                Console.WriteLine(exception.Message);
+            }
+        }
         
 
         #endregion
