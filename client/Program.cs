@@ -19,7 +19,7 @@ namespace Dox
             MultiPlayerOnline = 2
         }
 
-        static int globalGameState = -2;
+        static int globalGameState = -3;
         static readonly uint screenHeight = 480;
         static readonly uint screenWidth = 600;
         static Font font;
@@ -76,13 +76,17 @@ namespace Dox
             {
                 window.Clear();
 
-                if (globalGameState == -2) 
+                if (globalGameState == -3) 
                 {
                     DrawIntro();
                 }
-                else if (globalGameState == -1)
+                else if (globalGameState == -2)
                 {
                     DrawSelectGameType();
+                }
+                else if (globalGameState == -1)
+                {
+                    DrawSelectGameRoom();
                 }
                 else if (globalGameState == 0)
                 {
@@ -172,24 +176,25 @@ namespace Dox
         static void DrawSelectGameRoom()
         {
             Text title = CreateText("Select room", 30, Color.Blue, 150, 70);
-            
-
             Vector2i mousePosition =  Mouse.GetPosition(window);
-
-            foreach (var room in gameRooms)
-            {
-                Text option1 = CreateText("Room ", 20, Color.Blue, 150, 150);
-            }
-
-            if (mousePosition.X > 150 && mousePosition.X < 400)
-            {
-                if (mousePosition.Y > 150 && mousePosition.Y < 200)
-                    option1.FillColor = Color.Magenta;
-            }
 
             window.Clear(Color.White);
             window.Draw(title);
-            window.Draw(option1);
+            int roomIndex = 1;
+
+            foreach (var room in gameRooms)
+            {
+                Text option1 = CreateText($"Room {room}", 20, Color.Blue, 150, 150 + (50 * roomIndex));
+                
+                if (mousePosition.X > 150 && mousePosition.X < 400)
+                {
+                    if (mousePosition.Y > (150 + (50 * roomIndex)) && mousePosition.Y < (200 + (50 * roomIndex)))
+                        option1.FillColor = Color.Magenta;
+                }
+
+                window.Draw(option1);
+                roomIndex++;
+            }
         }
 
         static void DrawWinText()
@@ -305,13 +310,13 @@ namespace Dox
             Console.WriteLine(string.Format("X: {0}, Y: {1}", position.X, position.Y));
             #endif
 
-            if(globalGameState == -2)
+            if(globalGameState == -3)
             {
-                globalGameState = -1;
+                globalGameState = -2;
                 Reset();
                 return;
             }
-            else if(globalGameState == -1)
+            else if(globalGameState == -2)
             {
                 Vector2i mousePosition =  Mouse.GetPosition(window);
 
@@ -320,11 +325,12 @@ namespace Dox
                     if (mousePosition.Y > 150 && mousePosition.Y < 200)
                         currentGameType = GameType.MultiPlayerLocal;
                     else if (mousePosition.Y > 250 && mousePosition.Y < 300)
-                        
+                    {
+                        GetAvailableRooms();
                         //GetmultiplayerRoomId();
                         //GetMultiplayerClientIdForGame();
-                        //currentGameType = GameType.MultiPlayerOnline; 
-                        return;
+                        currentGameType = GameType.MultiPlayerOnline; 
+                    }
                     else
                         return;
                 }
@@ -332,7 +338,7 @@ namespace Dox
                 {
                     return;
                 }
-                globalGameState = 0;
+                globalGameState = -1;
                 Reset();
                 return;
             }
@@ -493,21 +499,22 @@ namespace Dox
 
         static void GetAvailableRooms()
         {
-            SendNetworkData("GAR", (data) => {
+            SendNetworkData("GAR;", (data) => {
                 gameRooms = new List<string>(data.Split(';'));
+                Console.WriteLine(gameRooms[0]);
              });
         }
 
         static void GetmultiplayerRoomId()
         {
-            SendNetworkData("AR", (data) => {
+            SendNetworkData("AR;", (data) => {
                 multiplayerRoomId = Int32.Parse(data);
              });
         }
 
         static void GetMultiplayerClientIdForGame()
         {
-            SendNetworkData("GCID", (data) => {
+            SendNetworkData("GCID;", (data) => {
                 multiplayerClientId = Int32.Parse(data);
              });
         }

@@ -99,7 +99,9 @@ namespace server
 
         static string GetAvailableRooms()   =>
             string.Join(ServerCommands.CommandSyntax.CommandPartSeparator, 
-                availableRooms.Where(r => r.Occupants.Count < 2));
+                availableRooms
+                    .Where(r => r.Occupants.Count < 2)
+                    .Select(r => r.Name));
 
         static void ProcessCommand(string data, out string response)
         {
@@ -133,6 +135,8 @@ namespace server
             IPAddress ip = host.AddressList[0];
             IPEndPoint localEndpoint = new IPEndPoint(ip, 11000);
 
+            SetupRooms();
+
             try
             {
                 Socket listener = new Socket(ip.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
@@ -144,17 +148,24 @@ namespace server
 
                 while(true)
                 {
-                    Socket handler = listener.Accept();
-                    Console.WriteLine("new connection opened.");
-                    string data = GetData(handler);
-                    string reponse = string.Empty;
+                    try
+                    {
+                        Socket handler = listener.Accept();
+                        Console.WriteLine("new connection opened.");
+                        string data = GetData(handler);
+                        string reponse = string.Empty;
 
-                    ProcessCommand(data, out reponse);
+                        ProcessCommand(data, out reponse);
 
-                    byte[] msg = Encoding.ASCII.GetBytes(reponse);
-                    handler.Send(msg);
-                    handler.Shutdown(SocketShutdown.Both);
-                    handler.Close();
+                        byte[] msg = Encoding.ASCII.GetBytes(reponse);
+                        handler.Send(msg);
+                        handler.Shutdown(SocketShutdown.Both);
+                        handler.Close();
+                    }
+                    catch (Exception exception)
+                    {
+                        Console.WriteLine(exception.Message);        
+                    }
                 }
 
             }
