@@ -1,6 +1,7 @@
 ﻿#define DOX_DEBUG
 
 using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -43,7 +44,8 @@ namespace Dox
         static int playsLeft = 9;
         static GameType currentGameType;
         static int multiplayerClientId = 0;
-        static int multiplayerGameId = 0;
+        static int multiplayerRoomId = 0;
+        static List<string> gameRooms = new List<string>();
 
         static void Reset()
         {
@@ -165,6 +167,29 @@ namespace Dox
             window.Draw(title);
             window.Draw(option1);
             window.Draw(option2);
+        }
+
+        static void DrawSelectGameRoom()
+        {
+            Text title = CreateText("Select room", 30, Color.Blue, 150, 70);
+            
+
+            Vector2i mousePosition =  Mouse.GetPosition(window);
+
+            foreach (var room in gameRooms)
+            {
+                Text option1 = CreateText("Room ", 20, Color.Blue, 150, 150);
+            }
+
+            if (mousePosition.X > 150 && mousePosition.X < 400)
+            {
+                if (mousePosition.Y > 150 && mousePosition.Y < 200)
+                    option1.FillColor = Color.Magenta;
+            }
+
+            window.Clear(Color.White);
+            window.Draw(title);
+            window.Draw(option1);
         }
 
         static void DrawWinText()
@@ -295,7 +320,8 @@ namespace Dox
                     if (mousePosition.Y > 150 && mousePosition.Y < 200)
                         currentGameType = GameType.MultiPlayerLocal;
                     else if (mousePosition.Y > 250 && mousePosition.Y < 300)
-                        //GetMultiplayerGameId();
+                        
+                        //GetmultiplayerRoomId();
                         //GetMultiplayerClientIdForGame();
                         //currentGameType = GameType.MultiPlayerOnline; 
                         return;
@@ -465,23 +491,30 @@ namespace Dox
 
         private delegate void NetworkCallback<T>(T obj);
 
-        static void GetMultiplayerGameId()
+        static void GetAvailableRooms()
         {
-            SendNetworkData("GID", (data) => {
-                multiplayerGameId = Int32.Parse(data);
+            SendNetworkData("GAR", (data) => {
+                gameRooms = new List<string>(data.Split(';'));
+             });
+        }
+
+        static void GetmultiplayerRoomId()
+        {
+            SendNetworkData("AR", (data) => {
+                multiplayerRoomId = Int32.Parse(data);
              });
         }
 
         static void GetMultiplayerClientIdForGame()
         {
-            SendNetworkData("CID", (data) => {
+            SendNetworkData("GCID", (data) => {
                 multiplayerClientId = Int32.Parse(data);
              });
         }
 
         static void SendNetworkPlay(int row, int col)
         {
-            SendNetworkData($"{multiplayerGameId},{multiplayerClientId};{row},{col}", (data) => { });
+            SendNetworkData($"{multiplayerRoomId};{multiplayerClientId};{row},{col}", (data) => { });
         }
 
         static void SendNetworkData(string message, NetworkCallback<string> callback)
