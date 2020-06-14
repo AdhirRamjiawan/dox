@@ -326,6 +326,7 @@ namespace Dox
                         currentGameType = GameType.MultiPlayerLocal;
                     else if (mousePosition.Y > 250 && mousePosition.Y < 300)
                     {
+                        GetMultiplayerClientIdForGame();
                         GetAvailableRooms();
                         //GetmultiplayerRoomId();
                         //GetMultiplayerClientIdForGame();
@@ -339,6 +340,12 @@ namespace Dox
                     return;
                 }
                 globalGameState = -1;
+                Reset();
+                return;
+            }
+            else if (globalGameState == -1)
+            {
+                globalGameState = 1;
                 Reset();
                 return;
             }
@@ -501,7 +508,10 @@ namespace Dox
         {
             SendNetworkData("GAR;", (data) => {
                 gameRooms = new List<string>(data.Split(';'));
-                Console.WriteLine(gameRooms[0]);
+
+                #if DOX_DEBUG
+                    Console.WriteLine(gameRooms[0]);
+                #endif
              });
         }
 
@@ -516,6 +526,10 @@ namespace Dox
         {
             SendNetworkData("GCID;", (data) => {
                 multiplayerClientId = Int32.Parse(data);
+                
+                #if DOX_DEBUG
+                    Console.WriteLine($"client id from server: {multiplayerClientId}");
+                #endif
              });
         }
 

@@ -111,7 +111,7 @@ namespace server
             switch(command)
             {
                 case ServerCommands.GetClientID:
-                    response = nextClientID++.ToString();
+                    response = (++nextClientID).ToString();
                     break;
                 case ServerCommands.GetRooms:
                     response = GetAvailableRooms();
