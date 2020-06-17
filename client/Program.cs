@@ -323,11 +323,15 @@ namespace Dox
                 if (mousePosition.X > 150 && mousePosition.X < 400)
                 {
                     if (mousePosition.Y > 150 && mousePosition.Y < 200)
+                    {
                         currentGameType = GameType.MultiPlayerLocal;
+                        globalGameState = 0;
+                    }
                     else if (mousePosition.Y > 250 && mousePosition.Y < 300)
                     {
                         GetMultiplayerClientIdForGame();
                         GetAvailableRooms();
+                        globalGameState = -1;
                         //GetmultiplayerRoomId();
                         //GetMultiplayerClientIdForGame();
                         currentGameType = GameType.MultiPlayerOnline; 
@@ -339,7 +343,7 @@ namespace Dox
                 {
                     return;
                 }
-                globalGameState = -1;
+                
                 Reset();
                 return;
             }
