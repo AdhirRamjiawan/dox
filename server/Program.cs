@@ -145,26 +145,32 @@ namespace server
                 listener.Listen(1);
 
                 Console.WriteLine("waiting for a connection...");
-
+                Socket handler = null;
+                string reponse = string.Empty;
+                
                 while(true)
                 {
                     try
                     {
-                        Socket handler = listener.Accept();
+                        handler = listener.Accept();
                         Console.WriteLine("new connection opened.");
                         string data = GetData(handler);
-                        string reponse = string.Empty;
+                        
 
                         ProcessCommand(data, out reponse);
 
-                        byte[] msg = Encoding.ASCII.GetBytes(reponse);
-                        handler.Send(msg);
-                        handler.Shutdown(SocketShutdown.Both);
-                        handler.Close();
+                        
                     }
                     catch (Exception exception)
                     {
                         Console.WriteLine(exception.Message);        
+                    }
+                    finally
+                    {
+                        byte[] msg = Encoding.ASCII.GetBytes(reponse);
+                        handler.Send(msg);
+                        handler.Shutdown(SocketShutdown.Both);
+                        handler.Close();
                     }
                 }
 

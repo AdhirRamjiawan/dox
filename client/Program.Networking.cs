@@ -41,7 +41,7 @@ namespace Dox
 
         static void SendNetworkPlay(int row, int col)
         {
-            SendNetworkData($"{multiplayerRoomId};{multiplayerClientId};{row},{col}", (data) => { });
+            SendNetworkData($"NP;{multiplayerRoomId};{multiplayerClientId};{row},{col}", (data) => { });
         }
 
         static void SendNetworkData(string message, NetworkCallback<string> callback)
@@ -73,6 +73,7 @@ namespace Dox
             catch (Exception exception)
             {
                 Console.WriteLine(exception.Message);
+                Console.WriteLine(exception.StackTrace);
             }
         }
         

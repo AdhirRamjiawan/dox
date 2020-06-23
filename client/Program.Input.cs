@@ -45,8 +45,7 @@ namespace Dox
                         GetMultiplayerClientIdForGame();
                         GetAvailableRooms();
                         globalGameState = -1;
-                        //GetmultiplayerRoomId();
-                        //GetMultiplayerClientIdForGame();
+                        
                         currentGameType = GameType.MultiPlayerOnline; 
                     }
                     else
@@ -57,13 +56,13 @@ namespace Dox
                     return;
                 }
                 
-                Reset();
                 return;
             }
             else if (globalGameState == -1)
             {
-                globalGameState = 1;
-                Reset();
+                GetmultiplayerRoomId();
+                multiplayerRoomId = 0;
+                globalGameState = 0;
                 return;
             }
             else if (globalGameState == 1)
@@ -88,11 +87,11 @@ namespace Dox
 
                 if (state[gp.Item2, gp.Item1] == 0)
                 {
-                    state[gp.Item2, gp.Item1] = currentPlayer;
-                    SwitchPlayer();
-
                     if (currentGameType == GameType.MultiPlayerOnline)
                         SendNetworkPlay(gp.Item1, gp.Item2);
+                        
+                    state[gp.Item2, gp.Item1] = currentPlayer;
+                    SwitchPlayer();
                 }
                 else
                 {

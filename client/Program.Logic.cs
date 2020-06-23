@@ -92,7 +92,9 @@ namespace Dox
 
         static void SwitchPlayer() 
         {
-            currentPlayer = (currentPlayer == 1) ? 2:1;
+            if (currentGameType == GameType.MultiPlayerLocal)
+                currentPlayer = (currentPlayer == 1) ? 2:1;
+                
             playsLeft--;
         }
 
