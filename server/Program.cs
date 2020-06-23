@@ -59,7 +59,7 @@ namespace server
             }
         }
 
-        static void AllocateRoom(int roomID, int clientID, int playerSymbol)
+        static void AllocateRoom(int roomID, int clientID, int playerSymbol = -1)
         {
             var room = availableRooms.Where(r => r.ID == roomID).FirstOrDefault();
 
@@ -117,10 +117,11 @@ namespace server
                     response = GetAvailableRooms();
                     break;
                 case ServerCommands.AllocateRoom:
-                    response = "";
+                    AllocateRoom(Int32.Parse(commandParts[1]), Int32.Parse(commandParts[2]));
+                    response = "ok";
                     break;
                 case ServerCommands.NetworkPlay:
-                    response = "";
+                    response = "ok";
                     break;
                 default:
                     throw new Exception($"Invalid server command {command}");
@@ -147,7 +148,7 @@ namespace server
                 Console.WriteLine("waiting for a connection...");
                 Socket handler = null;
                 string reponse = string.Empty;
-                
+
                 while(true)
                 {
                     try

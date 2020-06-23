@@ -60,8 +60,9 @@ namespace Dox
             }
             else if (globalGameState == -1)
             {
-                GetmultiplayerRoomId();
+                // test code
                 multiplayerRoomId = 0;
+                AllocateRoomId(multiplayerRoomId, multiplayerClientId);
                 globalGameState = 0;
                 return;
             }

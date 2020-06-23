@@ -21,11 +21,9 @@ namespace Dox
              });
         }
 
-        static void GetmultiplayerRoomId()
+        static void AllocateRoomId(int roomId, int clientId)
         {
-            SendNetworkData("AR;", (data) => {
-                multiplayerRoomId = Int32.Parse(data);
-             });
+            SendNetworkData($"AR;{roomId};{clientId};", (data) => { });
         }
 
         static void GetMultiplayerClientIdForGame()
