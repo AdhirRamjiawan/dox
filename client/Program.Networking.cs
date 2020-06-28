@@ -23,7 +23,14 @@ namespace Dox
 
         static void AllocateRoomId(int roomId, int clientId)
         {
-            SendNetworkData($"AR;{roomId};{clientId};", (data) => { });
+            SendNetworkData($"AR;{roomId};{clientId};", (data) => { 
+                Console.WriteLine(data);
+                currentPlayer = int.Parse(data.Split(';')[0]);
+
+                #if DOX_DEBUG
+                    Console.WriteLine($"Room {roomId} allocated with playerSymbol {currentPlayer}");
+                #endif
+            });
         }
 
         static void GetMultiplayerClientIdForGame()

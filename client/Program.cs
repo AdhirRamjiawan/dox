@@ -57,6 +57,19 @@ namespace Dox
                 {
                     DrawGrid();
                     DrawPlays();
+
+                    if (currentGameType == GameType.MultiPlayerOnline)
+                    {
+                        if (isMultiplayerPlayLocked)
+                        {
+                            DrawNetworkPlayLocked();
+                        }
+
+                        if (currentPlayer != 0)
+                        {
+                            DrawCurrentPlayerSymbol();
+                        }
+                    }
                 }
                 else if (globalGameState == 1)
                 {

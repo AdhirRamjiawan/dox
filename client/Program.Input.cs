@@ -45,7 +45,7 @@ namespace Dox
                         GetMultiplayerClientIdForGame();
                         GetAvailableRooms();
                         globalGameState = -1;
-                        
+                        currentPlayer = 0;
                         currentGameType = GameType.MultiPlayerOnline; 
                     }
                     else
@@ -89,10 +89,21 @@ namespace Dox
                 if (state[gp.Item2, gp.Item1] == 0)
                 {
                     if (currentGameType == GameType.MultiPlayerOnline)
+                    {
+                        if (isMultiplayerPlayLocked)
+                            return;
+
                         SendNetworkPlay(gp.Item1, gp.Item2);
-                        
-                    state[gp.Item2, gp.Item1] = currentPlayer;
-                    SwitchPlayer();
+                        isMultiplayerPlayLocked = true;
+
+                        state[gp.Item2, gp.Item1] = currentPlayer;
+                        SwitchPlayer();
+                    }
+                    else
+                    {
+                        state[gp.Item2, gp.Item1] = currentPlayer;
+                        SwitchPlayer();
+                    }
                 }
                 else
                 {

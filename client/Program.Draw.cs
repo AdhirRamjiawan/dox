@@ -136,6 +136,18 @@ namespace Dox
             }
         }
 
+        static void DrawNetworkPlayLocked()
+        {
+            Text text = CreateText("Waiting\nfor\nOpponent...", 15, Color.Yellow, 510, 50);
+            window.Draw(text);
+        }
+
+        static void DrawCurrentPlayerSymbol()
+        {
+            Text text = CreateText($"Your\nsymbol is\n{currentPlayer}...", 15, Color.White, 510, 150);
+            window.Draw(text);
+        }
+
         static void DrawX(int col, int row)
         {
             row++;

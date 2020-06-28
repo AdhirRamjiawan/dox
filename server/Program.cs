@@ -8,6 +8,17 @@ using System.Text;
 namespace server
 {
 
+    /*
+
+        things still to do:
+
+        1. add online/offline status through ping (keep alive).
+        2. add network play locking after a play
+        3. pending network play.
+
+
+    */
+
     class Occupant
     {
         public int ClientID {get;set;} = -1;
@@ -59,7 +70,12 @@ namespace server
             }
         }
 
-        static void AllocateRoom(int roomID, int clientID, int playerSymbol = -1)
+        static void MakeNetworkPlay()
+        {
+            throw new NotImplementedException();
+        }
+
+        static int AllocateRoom(int roomID, int clientID)
         {
             var room = availableRooms.Where(r => r.ID == roomID).FirstOrDefault();
 
@@ -69,10 +85,17 @@ namespace server
             if (room.Occupants.Count > 1)
                 throw new Exception($"Room {roomID} is currently full");
 
+            var existingPlayerSymbol = room.Occupants.FirstOrDefault()?.PlayerSymbol;
+
+            var playerSymbol = (existingPlayerSymbol == null) ? 1 :
+                                (existingPlayerSymbol == 1) ? 2 : 0;
+
             room.Occupants.Add(new Occupant(){
                 ClientID = clientID,
                 PlayerSymbol = playerSymbol
             });
+
+            return playerSymbol;
         }
 
         static string GetData(Socket handler)
@@ -117,8 +140,9 @@ namespace server
                     response = GetAvailableRooms();
                     break;
                 case ServerCommands.AllocateRoom:
-                    AllocateRoom(Int32.Parse(commandParts[1]), Int32.Parse(commandParts[2]));
-                    response = "ok";
+                    int roomID = Int32.Parse(commandParts[1]);
+                    int clientID = Int32.Parse(commandParts[2]);
+                    response = AllocateRoom(roomID, clientID).ToString();
                     break;
                 case ServerCommands.NetworkPlay:
                     response = "ok";

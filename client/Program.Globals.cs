@@ -13,6 +13,7 @@ namespace Dox
         static readonly string fontName = "Ubuntu-Bold.ttf";
         static RenderWindow window;
         static bool isMouseClicked;
+        static bool isMultiplayerPlayLocked;
 
         static float lineThickness = 15f;
         static float lineLength = 480f;
