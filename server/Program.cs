@@ -14,7 +14,8 @@ namespace server
 
         1. add online/offline status through ping (keep alive).
         2. add network play locking after a play
-        3. pending network play.
+        3. pending network play. Last network play
+        4. 
 
 
     */
@@ -25,11 +26,18 @@ namespace server
         public int PlayerSymbol {get;set;} = -1;
     }
 
+    class NetworkPlay
+    {
+        public string Data {get;set;}
+        public int PlayedBy {get;set;}
+    }
+
     class Room
     {
         public int ID {get;set;}
         public string Name {get;set;}
         public List<Occupant> Occupants {get;set;}
+        public NetworkPlay LastNetworkPlay {get;set;}
     }
 
     class ServerCommands
@@ -38,6 +46,7 @@ namespace server
         public const string AllocateRoom = "AR";
         public const string NetworkPlay = "NP";
         public const string GetClientID = "GCID";
+        public const string LastNetworkPlay = "LNP";
 
         public static class CommandSyntax
         {
@@ -55,7 +64,6 @@ namespace server
         static List<Room> availableRooms;
         static int nextClientID = -1;
 
-
         static void SetupRooms()
         {
             availableRooms = new List<Room>();
@@ -70,9 +78,25 @@ namespace server
             }
         }
 
-        static void MakeNetworkPlay()
+        static void MakeNetworkPlay(int roomID, int clientID, string networkPlay)
         {
-            throw new NotImplementedException();
+            var room = availableRooms.Where(r => r.ID == roomID).FirstOrDefault();
+            var playedBy = room.Occupants.Where(o => o.ClientID == clientID).FirstOrDefault();
+
+            room.LastNetworkPlay = new NetworkPlay()
+            {
+                Data = networkPlay,
+                PlayedBy = playedBy.PlayerSymbol
+            };
+        }
+
+        static string GetLastNetworkPlay(int roomID, int clientID)
+        {
+            var room = availableRooms.Where(r => r.ID == roomID).FirstOrDefault();
+            return room.LastNetworkPlay.Data 
+                    + ServerCommands.CommandSyntax.CommandPartSeparator 
+                    + room.LastNetworkPlay.PlayedBy 
+                    + ServerCommands.CommandSyntax.CommandPartSeparator;
         }
 
         static int AllocateRoom(int roomID, int clientID)
@@ -140,13 +164,27 @@ namespace server
                     response = GetAvailableRooms();
                     break;
                 case ServerCommands.AllocateRoom:
+                {
                     int roomID = Int32.Parse(commandParts[1]);
                     int clientID = Int32.Parse(commandParts[2]);
                     response = AllocateRoom(roomID, clientID).ToString();
                     break;
+                }
                 case ServerCommands.NetworkPlay:
+                {
+                    int roomID = Int32.Parse(commandParts[1]);
+                    int clientID = Int32.Parse(commandParts[2]);
+                    MakeNetworkPlay(roomID, clientID, data);
                     response = "ok";
                     break;
+                }
+                case ServerCommands.LastNetworkPlay:
+                {
+                    int roomID = Int32.Parse(commandParts[1]);
+                    int clientID = Int32.Parse(commandParts[2]);
+                    response = GetLastNetworkPlay(roomID, clientID);
+                    break;
+                }
                 default:
                     throw new Exception($"Invalid server command {command}");
             }
@@ -180,11 +218,8 @@ namespace server
                         handler = listener.Accept();
                         Console.WriteLine("new connection opened.");
                         string data = GetData(handler);
-                        
 
                         ProcessCommand(data, out reponse);
-
-                        
                     }
                     catch (Exception exception)
                     {

@@ -1,4 +1,6 @@
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 using SFML.System;
 using SFML.Window;
 
@@ -97,7 +99,22 @@ namespace Dox
                         isMultiplayerPlayLocked = true;
 
                         state[gp.Item2, gp.Item1] = currentPlayer;
-                        SwitchPlayer();
+                        //SwitchPlayer();
+
+                        Task.Run(()=>{
+                            bool keepPolling = true;
+                            while(keepPolling)
+                            {
+                                Thread.Sleep(1000);
+                                QueryLastNetworkPlay((receivedValidNetworkPlay) => {
+                                    if (receivedValidNetworkPlay)
+                                    {
+                                        keepPolling = false;
+                                        isMultiplayerPlayLocked = false;
+                                    }
+                                });
+                            }
+                        });
                     }
                     else
                     {

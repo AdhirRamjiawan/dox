@@ -98,5 +98,33 @@ namespace Dox
             playsLeft--;
         }
 
+        static bool ProcessLastNetworkPlay(string lastNetworkPlayData)
+        {
+            bool result = false;
+            string[] parts = lastNetworkPlayData.Split(';');
+            int clientID = int.Parse(parts[2]);
+            
+            if (clientID != multiplayerClientId)
+            {
+                int row = int.Parse(parts[3]);
+                int col = int.Parse(parts[4]);
+                int opponent = int.Parse(parts[6]);
+
+                state[col, row] = opponent;
+                result = true;
+
+                #if DOX_DEBUG
+                    Console.WriteLine("Last network play applied locally");
+                #endif
+            }
+            else
+            {
+                #if DOX_DEBUG
+                    Console.WriteLine("Opponent has not played yet");
+                #endif
+            }
+
+            return result;
+        }
     }
 }

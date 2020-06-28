@@ -8,7 +8,7 @@ namespace Dox
 {
     public partial class Program
     {
-                private delegate void NetworkCallback<T>(T obj);
+        private delegate void NetworkCallback<T>(T obj);
 
         static void GetAvailableRooms()
         {
@@ -46,7 +46,18 @@ namespace Dox
 
         static void SendNetworkPlay(int row, int col)
         {
-            SendNetworkData($"NP;{multiplayerRoomId};{multiplayerClientId};{row},{col}", (data) => { });
+            SendNetworkData($"NP;{multiplayerRoomId};{multiplayerClientId};{row};{col};", (data) => { });
+        }
+
+        static void QueryLastNetworkPlay(NetworkCallback<bool> callback)
+        {
+            SendNetworkData($"LNP;{multiplayerRoomId};{multiplayerClientId};", (data) => {
+                //#if DOX_DEBUG
+                    Console.WriteLine($"last network play: {data}");
+                //#endif
+                var result = ProcessLastNetworkPlay(data);
+                callback(result);
+            });
         }
 
         static void SendNetworkData(string message, NetworkCallback<string> callback)
