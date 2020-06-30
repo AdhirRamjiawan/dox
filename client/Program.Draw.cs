@@ -177,9 +177,9 @@ namespace Dox
                 for (int col = 0; col < 3; col++)
                 {
                     if (state[row, col] == 1)
-                        DrawX(col, row);
-                    else if (state[row, col] == 2)
                         DrawO(col, row);
+                    else if (state[row, col] == 2)
+                        DrawX(col, row);
                 }
             }
         }

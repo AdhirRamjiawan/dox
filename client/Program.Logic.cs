@@ -92,8 +92,7 @@ namespace Dox
 
         static void SwitchPlayer() 
         {
-            if (currentGameType == GameType.MultiPlayerLocal)
-                currentPlayer = (currentPlayer == 1) ? 2:1;
+            currentPlayer = (currentPlayer == 1) ? 2:1;
                 
             playsLeft--;
         }
@@ -110,12 +109,16 @@ namespace Dox
                 int col = int.Parse(parts[4]);
                 int opponent = int.Parse(parts[6]);
 
-                state[col, row] = opponent;
-                result = true;
+                if (state[col, row] == 0)
+                {
+                    state[col, row] = opponent;
 
-                #if DOX_DEBUG
-                    Console.WriteLine("Last network play applied locally");
-                #endif
+                    result = true;
+
+                    #if DOX_DEBUG
+                        Console.WriteLine("Last network play applied locally");
+                    #endif
+                }
             }
             else
             {

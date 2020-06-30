@@ -47,7 +47,6 @@ namespace Dox
                         GetMultiplayerClientIdForGame();
                         GetAvailableRooms();
                         globalGameState = -1;
-                        currentPlayer = 0;
                         currentGameType = GameType.MultiPlayerOnline; 
                     }
                     else
@@ -86,7 +85,6 @@ namespace Dox
 
             if (gp != null)
             {
-                //DrawO(gp.Item1, gp.Item2);
 
                 if (state[gp.Item2, gp.Item1] == 0)
                 {
@@ -97,9 +95,13 @@ namespace Dox
 
                         SendNetworkPlay(gp.Item1, gp.Item2);
                         isMultiplayerPlayLocked = true;
+                        playsLeft--;
+
+                        //#if DOX_DEBUG
+                            Console.WriteLine($"After network play currentPlayer {currentPlayer}");
+                        //#endif
 
                         state[gp.Item2, gp.Item1] = currentPlayer;
-                        //SwitchPlayer();
 
                         Task.Run(()=>{
                             bool keepPolling = true;
@@ -139,7 +141,10 @@ namespace Dox
             if (hasWon)
             {
                 globalGameState = 1;
-                //Reset();
+                
+                if (currentGameType == GameType.MultiPlayerLocal)
+                    SwitchPlayer();
+
                 Console.WriteLine($"We have a winner: {currentPlayer}!");
             }
 
