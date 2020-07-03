@@ -60,6 +60,11 @@ namespace Dox
 
                     if (currentGameType == GameType.MultiPlayerOnline)
                     {
+                        if (!isInitialPlaySynced)
+                        {
+                            PollInitialNetworkPlay();
+                        }
+                        
                         if (isMultiplayerPlayLocked)
                         {
                             DrawNetworkPlayLocked();

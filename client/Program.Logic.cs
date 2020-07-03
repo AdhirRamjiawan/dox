@@ -1,4 +1,6 @@
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Dox
 {
@@ -97,10 +99,51 @@ namespace Dox
             playsLeft--;
         }
 
+        static void PollNetworkPlay()
+        {
+            Task.Run(()=>{
+                bool keepPolling = true;
+                while(keepPolling)
+                {
+                    Thread.Sleep(1000);
+                    QueryLastNetworkPlay((receivedValidNetworkPlay) => {
+                        if (receivedValidNetworkPlay)
+                        {
+                            keepPolling = false;
+                            isMultiplayerPlayLocked = false;
+                        }
+                    });
+                }
+                CheckWin();
+            });
+        }
+
+        static void PollInitialNetworkPlay()
+        {
+            Task.Run(()=>{
+                bool keepPolling = true;
+                while(keepPolling)
+                {
+                    Thread.Sleep(1000);
+                    QueryLastNetworkPlay((receivedValidNetworkPlay) => {
+                        if (receivedValidNetworkPlay)
+                        {
+                            keepPolling = false;
+                            isInitialPlaySynced = true;
+                        }
+                    });
+                }
+            });
+        }
+
         static bool ProcessLastNetworkPlay(string lastNetworkPlayData)
         {
             bool result = false;
             string[] parts = lastNetworkPlayData.Split(';');
+
+            if (parts.Length < 2)
+                return false;
+
             int clientID = int.Parse(parts[2]);
             
             if (clientID != multiplayerClientId)

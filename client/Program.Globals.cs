@@ -34,5 +34,6 @@ namespace Dox
         static int multiplayerClientId = 0;
         static int multiplayerRoomId = 0;
         static List<string> gameRooms = new List<string>();
+        static bool isInitialPlaySynced= false;
     }
 }
