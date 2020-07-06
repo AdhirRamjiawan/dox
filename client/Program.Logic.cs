@@ -109,8 +109,8 @@ namespace Dox
                     QueryLastNetworkPlay((receivedValidNetworkPlay) => {
                         if (receivedValidNetworkPlay)
                         {
-                            keepPolling = false;
                             isMultiplayerPlayLocked = false;
+                            keepPolling = false;
                         }
                     });
                 }
@@ -128,6 +128,7 @@ namespace Dox
                     QueryLastNetworkPlay((receivedValidNetworkPlay) => {
                         if (receivedValidNetworkPlay)
                         {
+                            isMultiplayerPlayLocked = false;
                             keepPolling = false;
                             isInitialPlaySynced = true;
                         }
